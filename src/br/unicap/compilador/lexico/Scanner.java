@@ -27,6 +27,9 @@ public class Scanner {
 
     public Token nextToken() {
         char currentChar;
+        int cont = 0;
+        int decimal = 0;
+        
         Token token;
         String term = "";
         if (isEOF()) {
@@ -38,26 +41,35 @@ public class Scanner {
 
             switch (estado) {
                 case 0:
-                    if (isChar(currentChar)) {
+                    if (isLetra(currentChar) || currentChar == '_') {
                         term += currentChar;
                         estado = 1;
                     } else if (isDigit(currentChar)) {
                         estado = 3;
                         term += currentChar;
+                    } else if (isChar(currentChar)) {
+                        estado = 9;
+                        term += currentChar;
                     } else if (isSpace(currentChar)) {
                         estado = 0;
                     } else if (isOperator(currentChar)) {
                         estado = 5;
+                    } else if (isCarac_Especial(currentChar)) {
+                        estado = 7;
                     } else {
                         throw new LexicalException("Unrecognized SYMBOL");
                     }
                     break;
                 case 1:
-                    if (isChar(currentChar) || isDigit(currentChar)) {
+                    if (isLetra(currentChar) || isDigit(currentChar) || currentChar == '_') {
                         estado = 1;
                         term += currentChar;
-                    } else if (isSpace(currentChar) || isOperator(currentChar)) {
-                        estado = 2;
+                    } else if (isSpace(currentChar)) {
+                        if(term.compareTo("main") == 0 || term.compareTo("if") == 0 || term.compareTo("else") == 0 || term.compareTo("while") == 0 || term.compareTo("do") == 0 || term.compareTo("for") == 0 || term.compareTo("int") == 0 || term.compareTo("float") == 0 || term.compareTo("char") == 0){
+                            estado = 11;
+                        } else{
+                            estado = 2;
+                        }
                     } else {
                         throw new LexicalException("Malformed Identifier");
                     }
@@ -72,27 +84,134 @@ public class Scanner {
                     if (isDigit(currentChar)) {
                         estado = 3;
                         term += currentChar;
-                    } else if (!isChar(currentChar)) {
+                        cont++;
+                    } else if (currentChar == '.' && decimal == 0) {
+                        estado = 3;
+                        term += currentChar;
+                        decimal = 1;
+                    } else if(!isLetra(currentChar) && cont == 0){
+                        estado = 6;
+                    } else if (!isLetra(currentChar) && currentChar != '.' && cont != 0) {
                         estado = 4;
+                    } else if (!isLetra(currentChar) && cont != 0 && decimal != 0) {
+                        estado = 8;
                     } else {
                         throw new LexicalException("Unrecognized Number");
                     }
                     break;
                 case 4:
                     token = new Token();
-                    token.setType(Token.TK_NUMBER);
+                    token.setType(Token.TK_INTEIRO);
                     token.setText(term);
                     back();
                     return token;
                 case 5:
                     term += currentChar;
                     token = new Token();
-                    token.setType(Token.TK_OPERATOR);
+                    if(currentChar == '>'){
+                        currentChar = nextChar();
+                        if(currentChar == '='){
+                            term += currentChar;
+                            token.setType(Token.TK_OPERATOR_relacional_maior_igual);
+                        } else{
+                            currentChar = backChar();
+                            token.setType(Token.TK_OPERATOR_relacional_maior);
+                        }
+                    } else if(currentChar == '<'){
+                        currentChar = nextChar();
+                        if(currentChar == '='){
+                            term += currentChar;
+                            token.setType(Token.TK_OPERATOR_relacional_menor_igual);
+                        } else{
+                            currentChar = backChar();
+                            token.setType(Token.TK_OPERATOR_relacional_menor);
+                        }
+                    } else if(currentChar == '!'){
+                        currentChar = nextChar();
+                        if(currentChar == '='){
+                            term += currentChar;
+                            token.setType(Token.TK_OPERATOR_relacional_diferenca);
+                        } else{
+                            throw new LexicalException("Unrecognized SYMBOL");
+                        }
+                    } else if(currentChar == '+'){
+                        token.setType(Token.TK_OPERATOR_aritmetrico_mais);
+                    } else if(currentChar == '-'){
+                        token.setType(Token.TK_OPERATOR_aritmetrico_menos);
+                    } else if(currentChar == '*'){
+                        token.setType(Token.TK_OPERATOR_aritmetrico_multiplicacao);
+                    } else if(currentChar == '/'){
+                        token.setType(Token.TK_OPERATOR_aritmetrico_divisao);
+                    } else if(currentChar == '='){
+                        currentChar = nextChar();
+                        if(currentChar == '='){
+                            term += currentChar;
+                            token.setType(Token.TK_OPERATOR_igual);
+                        } else{
+                            currentChar = backChar();
+                            token.setType(Token.TK_OPERATOR_atribuidor);
+                        }
+                    }
+                    token.setText(term);
+                    return token;
+                case 6:
+                    token = new Token();
+                    token.setType(Token.TK_DIGIT);
+                    token.setText(term);
+                    back();
+                    return token;
+                case 7:
+                    term += currentChar;
+                    token = new Token();
+                    if(currentChar == '{'){
+                        token.setType(Token.TK_CARACTER_especial_abre_chave);
+                    } else if(currentChar == '}'){
+                        token.setType(Token.TK_CARACTER_especial_fecha_chave);
+                    } else if(currentChar == '('){
+                        token.setType(Token.TK_CARACTER_especial_abre_parenteses);
+                    } else if(currentChar == ')'){
+                        token.setType(Token.TK_CARACTER_especial_fecha_parenteses);
+                    } else if(currentChar == ';'){
+                        token.setType(Token.TK_CARACTER_especial_pontovirgula);
+                    } else if(currentChar == ','){
+                        token.setType(Token.TK_CARACTER_especial_virgula);
+                    }
+                    token.setText(term);
+                    return token;
+                case 8:
+                    token = new Token();
+                    token.setType(Token.TK_FLOAT);
+                    token.setText(term);
+                    back();
+                    return token;
+                case 9:
+                    if (isChar(currentChar)) {
+                        estado = 9;
+                        term += currentChar;
+                    } else if (isSpace(currentChar)) {
+                        estado = 10;
+                    } else {
+                        throw new LexicalException("Malformed Identifier");
+                    }
+                    break;
+                case 10:
+                    back();
+                    token = new Token();
+                    token.setType(Token.TK_CHAR);
+                    token.setText(term);
+                    return token;
+                case 11:
+                    back();
+                    token = new Token();
+                    token.setType(Token.TK_PALAVRA_reservada);
                     token.setText(term);
                     return token;
             }
         }
-
+    }
+    
+    private boolean isLetra(char c) {
+        return c >= 'a' && c <= 'z';
     }
 
     private boolean isDigit(char c) {
@@ -100,11 +219,15 @@ public class Scanner {
     }
 
     private boolean isChar(char c) {
-        return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
+        return (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9');
     }
 
     private boolean isOperator(char c) {
-        return c == '>' || c == '<' || c == '=' || c == '!';
+        return c == '>' || c == '<' || c == '=' || c == '!' || c == '+' || c == '-' || c == '*' || c == '/';
+    }
+    
+    private boolean isCarac_Especial(char c) {
+        return c == ')' || c == '(' || c == '{' || c == '}' || c == ',' || c == ';';
     }
 
     private boolean isSpace(char c) {
@@ -113,6 +236,10 @@ public class Scanner {
 
     private char nextChar() {
         return content[pos++];
+    }
+    
+    private char backChar() {
+        return content[pos--];
     }
 
     private boolean isEOF() {

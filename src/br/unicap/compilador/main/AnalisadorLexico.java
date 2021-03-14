@@ -8,14 +8,13 @@ public class AnalisadorLexico {
 
     public static void main(String[] args) {
         try {
-            Scanner sc = new Scanner("input.isi");
+            Scanner sc = new Scanner("input.txt");
             Token token = null;
             do {
                 token = sc.nextToken();
                 if (token != null) {
                     System.out.println(token);
                 }
-
             } while (token != null);
         } catch (LexicalException ex) {
             System.out.println("Lexical ERROR " + ex.getMessage());
