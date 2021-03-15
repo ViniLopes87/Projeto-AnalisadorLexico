@@ -41,9 +41,12 @@ public class Scanner {
 
             switch (estado) {
                 case 0:
-                    if (isLetra(currentChar) || currentChar == '_') {
+                    if (isLetra(currentChar)) {
                         term += currentChar;
                         estado = 1;
+                    } else if (currentChar == '_') {
+                        estado = 12;
+                        term += currentChar;
                     } else if (isDigit(currentChar)) {
                         estado = 3;
                         term += currentChar;
@@ -62,13 +65,18 @@ public class Scanner {
                     break;
                 case 1:
                     if (isLetra(currentChar) || isDigit(currentChar) || currentChar == '_') {
-                        estado = 1;
-                        term += currentChar;
+                    	if(isDigit(currentChar) || currentChar == '_') {
+                    		estado = 12;
+                            term += currentChar;
+                    	} else {
+                    		estado = 1;
+                            term += currentChar;
+                    	}
                     } else if (isSpace(currentChar)) {
                         if(term.compareTo("main") == 0 || term.compareTo("if") == 0 || term.compareTo("else") == 0 || term.compareTo("while") == 0 || term.compareTo("do") == 0 || term.compareTo("for") == 0 || term.compareTo("int") == 0 || term.compareTo("float") == 0 || term.compareTo("char") == 0){
                             estado = 11;
                         } else{
-                            estado = 2;
+                            estado = 13;
                         }
                     } else {
                         throw new LexicalException("Malformed Identifier");
@@ -204,6 +212,22 @@ public class Scanner {
                     back();
                     token = new Token();
                     token.setType(Token.TK_PALAVRA_reservada);
+                    token.setText(term);
+                    return token;
+                case 12:
+                    if (isLetra(currentChar) || isDigit(currentChar) || currentChar == '_') {
+                        estado = 12;
+                        term += currentChar;
+                    } else if (isSpace(currentChar)) {
+                        estado = 2;
+                    } else {
+                        throw new LexicalException("Malformed Identifier");
+                    }
+                    break;
+                case 13:
+                    back();
+                    token = new Token();
+                    token.setType(Token.TK_LETRA);
                     token.setText(term);
                     return token;
             }
