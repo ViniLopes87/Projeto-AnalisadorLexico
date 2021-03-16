@@ -65,7 +65,7 @@ public class Scanner {
                         term += currentChar;
                         wardrobe = currentChar;
                     } else {
-                        throw new LexicalException("Unrecognized SYMBOL");
+                        throw new LexicalException("Unrecognized SYMBOL: "+ currentChar);
                     }
                     break;
                 case 1:
@@ -84,7 +84,7 @@ public class Scanner {
                             estado = 13;
                         }
                     } else {
-                        throw new LexicalException("Malformed Identifier");
+                        throw new LexicalException("Malformed Identifier: "+currentChar);
                     }
                     break;
                 case 2:
@@ -109,7 +109,7 @@ public class Scanner {
                     } else if (!isLetra(currentChar) && currentChar != '.' && cont != 0) {
                         estado = 4;
                     } else {
-                        throw new LexicalException("Unrecognized Number");
+                        throw new LexicalException("Unrecognized Number: "+currentChar);
                     }
                     break;
                 case 4:
@@ -138,9 +138,10 @@ public class Scanner {
                         }
                     } else if(wardrobe == '!'){
                         if(currentChar == '='){
+                        	term += currentChar;
                             token.setType(Token.TK_OPERATOR_relacional_diferenca);
                         } else{
-                            throw new LexicalException("Unrecognized SYMBOL !");
+                            throw new LexicalException("Unrecognized SYMBOL: "+currentChar);
                         }
                     } else if(wardrobe == '+'){
                         token.setType(Token.TK_OPERATOR_aritmetrico_mais);
@@ -198,7 +199,7 @@ public class Scanner {
                     } else if (isSpace(currentChar)) {
                         estado = 10;
                     } else {
-                        throw new LexicalException("Malformed Identifier");
+                        throw new LexicalException("Malformed Identifier: "+currentChar);
                     }
                     break;
                 case 10:
@@ -220,7 +221,7 @@ public class Scanner {
                     } else if (isSpace(currentChar)) {
                         estado = 2;
                     } else {
-                        throw new LexicalException("Malformed Identifier");
+                        throw new LexicalException("Malformed Identifier: "+currentChar);
                     }
                     break;
                 case 13:
