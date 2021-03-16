@@ -4,10 +4,8 @@ public class Token {
 
     public static final String TK_IDENTIFIER = "Identificador";
     public static final String TK_INTEIRO = "Inteiro";
-    public static final String TK_LETRA = "Letra";
     public static final String TK_FLOAT = "Float";
     public static final String TK_CHAR = "Character";
-    public static final String TK_DIGIT = "Digito";
     public static final String TK_OPERATOR_relacional_maior = "Operador maior";
     public static final String TK_OPERATOR_relacional_menor = "Operador menor";
     public static final String TK_OPERATOR_relacional_maior_igual = "Operador maior igual";

@@ -2,11 +2,6 @@
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
-        <group>
-            <file>file:/C:/Users/Vinicius/Documents/NetBeansProjects/Analisador%20Lexico/src/br/unicap/compilador/lexico/Token.java</file>
-            <file>file:/C:/Users/Vinicius/Documents/NetBeansProjects/Analisador%20Lexico/src/br/unicap/compilador/lexico/Scanner.java</file>
-            <file>file:/C:/Users/Vinicius/Documents/NetBeansProjects/Analisador%20Lexico/src/br/unicap/compilador/exceptions/LexicalException.java</file>
-            <file>file:/C:/Users/Vinicius/Documents/NetBeansProjects/Analisador%20Lexico/src/br/unicap/compilador/main/AnalisadorLexico.java</file>
-        </group>
+        <group/>
     </open-files>
 </project-private>

@@ -1,15 +1,15 @@
 1.2
-_5y
+_5y f 5
 _y5
-k
-2
+'k'
+'2'
 main
 123
 aac
 +
 aabb5
 >
-main
+for
 ;
 if
 *

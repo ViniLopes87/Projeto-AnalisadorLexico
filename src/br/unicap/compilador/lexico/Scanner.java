@@ -42,17 +42,14 @@ public class Scanner {
 
             switch (estado) {
                 case 0:
-                    if (isLetra(currentChar)) {
+                    if (isLetra(currentChar) || currentChar == '_') {
                         term += currentChar;
                         estado = 1;
-                    } else if (currentChar == '_') {
-                        estado = 12;
-                        term += currentChar;
                     } else if (isDigit(currentChar)) {
                         estado = 3;
                         term += currentChar;
-                    } else if (isChar(currentChar)) {
-                        estado = 9;
+                    } else if (currentChar == '\'') {
+                        estado = 6;
                         term += currentChar;
                     } else if (isSpace(currentChar)) {
                         estado = 0;
@@ -70,18 +67,13 @@ public class Scanner {
                     break;
                 case 1:
                     if (isLetra(currentChar) || isDigit(currentChar) || currentChar == '_') {
-                    	if(isDigit(currentChar) || currentChar == '_') {
-                    		estado = 12;
-                            term += currentChar;
-                    	} else {
                     		estado = 1;
                             term += currentChar;
-                    	}
                     } else if (isSpace(currentChar)) {
                         if(term.compareTo("main") == 0 || term.compareTo("if") == 0 || term.compareTo("else") == 0 || term.compareTo("while") == 0 || term.compareTo("do") == 0 || term.compareTo("for") == 0 || term.compareTo("int") == 0 || term.compareTo("float") == 0 || term.compareTo("char") == 0){
                             estado = 11;
                         } else{
-                            estado = 13;
+                            estado = 2;
                         }
                     } else {
                         throw new LexicalException("Malformed Identifier: "+currentChar);
@@ -97,16 +89,13 @@ public class Scanner {
                     if (isDigit(currentChar)) {
                         estado = 3;
                         term += currentChar;
-                        cont++;
                     } else if (currentChar == '.' && decimal == 0) {
                         estado = 3;
                         term += currentChar;
                         decimal = 1;
-                    } else if(!isLetra(currentChar) && cont == 0){
-                        estado = 6;
-                    } else if (!isLetra(currentChar) && cont != 0 && decimal != 0) {
+                    } else if (!isLetra(currentChar) && decimal != 0) {
                         estado = 8;
-                    } else if (!isLetra(currentChar) && currentChar != '.' && cont != 0) {
+                    } else if (!isLetra(currentChar) && currentChar != '.') {
                         estado = 4;
                     } else {
                         throw new LexicalException("Unrecognized Number: "+currentChar);
@@ -163,11 +152,17 @@ public class Scanner {
                     token.setText(term);
                     return token;
                 case 6:
-                    token = new Token();
-                    token.setType(Token.TK_DIGIT);
-                    token.setText(term);
-                    back();
-                    return token;
+                	if (isLetra(currentChar) || isDigit(currentChar)) {
+                		estado = 6;
+                		term += currentChar;
+                		cont++;
+                	} else if(currentChar == '\'' && cont == 1) {
+                		term += currentChar;
+                		estado = 10;
+                	} else {
+                		throw new LexicalException("Malformed Identifier: "+currentChar);
+                	}
+                	break;
                 case 7:
                     term += currentChar;
                     token = new Token();
@@ -192,16 +187,6 @@ public class Scanner {
                     token.setText(term);
                     back();
                     return token;
-                case 9:
-                    if (isChar(currentChar)) {
-                        estado = 9;
-                        term += currentChar;
-                    } else if (isSpace(currentChar)) {
-                        estado = 10;
-                    } else {
-                        throw new LexicalException("Malformed Identifier: "+currentChar);
-                    }
-                    break;
                 case 10:
                     back();
                     token = new Token();
@@ -224,12 +209,6 @@ public class Scanner {
                         throw new LexicalException("Malformed Identifier: "+currentChar);
                     }
                     break;
-                case 13:
-                    back();
-                    token = new Token();
-                    token.setType(Token.TK_LETRA);
-                    token.setText(term);
-                    return token;
             }
         }
     }
@@ -240,10 +219,6 @@ public class Scanner {
 
     private boolean isDigit(char c) {
         return c >= '0' && c <= '9';
-    }
-
-    private boolean isChar(char c) {
-        return (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9');
     }
 
     private boolean isOperator(char c) {
