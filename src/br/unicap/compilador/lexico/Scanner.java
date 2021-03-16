@@ -27,6 +27,7 @@ public class Scanner {
 
     public Token nextToken() {
         char currentChar;
+        char wardrobe = 0;
         int cont = 0;
         int decimal = 0;
         
@@ -57,8 +58,12 @@ public class Scanner {
                         estado = 0;
                     } else if (isOperator(currentChar)) {
                         estado = 5;
+                        term += currentChar;
+                        wardrobe = currentChar;
                     } else if (isCarac_Especial(currentChar)) {
                         estado = 7;
+                        term += currentChar;
+                        wardrobe = currentChar;
                     } else {
                         throw new LexicalException("Unrecognized SYMBOL");
                     }
@@ -99,10 +104,10 @@ public class Scanner {
                         decimal = 1;
                     } else if(!isLetra(currentChar) && cont == 0){
                         estado = 6;
-                    } else if (!isLetra(currentChar) && currentChar != '.' && cont != 0) {
-                        estado = 4;
                     } else if (!isLetra(currentChar) && cont != 0 && decimal != 0) {
                         estado = 8;
+                    } else if (!isLetra(currentChar) && currentChar != '.' && cont != 0) {
+                        estado = 4;
                     } else {
                         throw new LexicalException("Unrecognized Number");
                     }
@@ -114,50 +119,44 @@ public class Scanner {
                     back();
                     return token;
                 case 5:
-                    term += currentChar;
                     token = new Token();
-                    if(currentChar == '>'){
-                        currentChar = nextChar();
+                    if(wardrobe == '>'){
                         if(currentChar == '='){
                             term += currentChar;
                             token.setType(Token.TK_OPERATOR_relacional_maior_igual);
                         } else{
-                            currentChar = backChar();
                             token.setType(Token.TK_OPERATOR_relacional_maior);
+                            back();
                         }
-                    } else if(currentChar == '<'){
-                        currentChar = nextChar();
+                    } else if(wardrobe == '<'){
                         if(currentChar == '='){
                             term += currentChar;
                             token.setType(Token.TK_OPERATOR_relacional_menor_igual);
                         } else{
-                            currentChar = backChar();
                             token.setType(Token.TK_OPERATOR_relacional_menor);
+                            back();
                         }
-                    } else if(currentChar == '!'){
-                        currentChar = nextChar();
+                    } else if(wardrobe == '!'){
                         if(currentChar == '='){
-                            term += currentChar;
                             token.setType(Token.TK_OPERATOR_relacional_diferenca);
                         } else{
-                            throw new LexicalException("Unrecognized SYMBOL");
+                            throw new LexicalException("Unrecognized SYMBOL !");
                         }
-                    } else if(currentChar == '+'){
+                    } else if(wardrobe == '+'){
                         token.setType(Token.TK_OPERATOR_aritmetrico_mais);
-                    } else if(currentChar == '-'){
+                    } else if(wardrobe == '-'){
                         token.setType(Token.TK_OPERATOR_aritmetrico_menos);
-                    } else if(currentChar == '*'){
+                    } else if(wardrobe == '*'){
                         token.setType(Token.TK_OPERATOR_aritmetrico_multiplicacao);
-                    } else if(currentChar == '/'){
+                    } else if(wardrobe == '/'){
                         token.setType(Token.TK_OPERATOR_aritmetrico_divisao);
-                    } else if(currentChar == '='){
-                        currentChar = nextChar();
+                    } else if(wardrobe == '='){
                         if(currentChar == '='){
                             term += currentChar;
                             token.setType(Token.TK_OPERATOR_igual);
                         } else{
-                            currentChar = backChar();
                             token.setType(Token.TK_OPERATOR_atribuidor);
+                            back();
                         }
                     }
                     token.setText(term);
@@ -171,17 +170,17 @@ public class Scanner {
                 case 7:
                     term += currentChar;
                     token = new Token();
-                    if(currentChar == '{'){
+                    if(wardrobe == '{'){
                         token.setType(Token.TK_CARACTER_especial_abre_chave);
-                    } else if(currentChar == '}'){
+                    } else if(wardrobe == '}'){
                         token.setType(Token.TK_CARACTER_especial_fecha_chave);
-                    } else if(currentChar == '('){
+                    } else if(wardrobe == '('){
                         token.setType(Token.TK_CARACTER_especial_abre_parenteses);
-                    } else if(currentChar == ')'){
+                    } else if(wardrobe == ')'){
                         token.setType(Token.TK_CARACTER_especial_fecha_parenteses);
-                    } else if(currentChar == ';'){
+                    } else if(wardrobe == ';'){
                         token.setType(Token.TK_CARACTER_especial_pontovirgula);
-                    } else if(currentChar == ','){
+                    } else if(wardrobe == ','){
                         token.setType(Token.TK_CARACTER_especial_virgula);
                     }
                     token.setText(term);
@@ -260,10 +259,6 @@ public class Scanner {
 
     private char nextChar() {
         return content[pos++];
-    }
-    
-    private char backChar() {
-        return content[pos--];
     }
 
     private boolean isEOF() {
